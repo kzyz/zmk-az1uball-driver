@@ -14,6 +14,9 @@
 #include <stdlib.h>
 #include "az1uball.h"
 
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(az1uball, LOG_LEVEL_DBG);
+
 volatile uint8_t AZ1UBALL_MAX_SPEED = 25;
 volatile uint8_t AZ1UBALL_MAX_TIME = 5;
 volatile float AZ1UBALL_SMOOTHING_FACTOR = 1.3f;
