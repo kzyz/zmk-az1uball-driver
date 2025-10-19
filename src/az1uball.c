@@ -27,7 +27,6 @@ static int previous_x = 0;
 static int previous_y = 0;
 
 static void az1uball_process_movement(struct az1uball_data *data, int delta_x, int delta_y, uint32_t time_between_interrupts, int max_speed, int max_time, float smoothing_factor) {
-    const struct az1uball_config *config = data->dev->config;
     float scaling_factor = 1.0f;
     
     if (time_between_interrupts < max_time) {
@@ -51,7 +50,7 @@ static void az1uball_process_movement(struct az1uball_data *data, int delta_x, i
 }
 
 /* Execution functions for asynchronous work */
-static void az1uball_work_handler(struct k_work *work)
+static void az1uball_work_handler(struct k_work_delayable *work)
 {
     struct az1uball_data *data = CONTAINER_OF(work, struct az1uball_data, work);
     const struct az1uball_config *config = data->dev->config;
