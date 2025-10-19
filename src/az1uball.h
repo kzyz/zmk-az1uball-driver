@@ -8,22 +8,13 @@
 /* Bit Masks */
 #define MSK_SWITCH_STATE    0b10000000
 
-/* Mode definitions */
-enum az1uball_mode {
-    AZ1UBALL_MODE_MOUSE,
-    AZ1UBALL_MODE_SCROLL
-};
-
 struct az1uball_config {
     struct i2c_dt_spec i2c;
-    const char *default_mode;
-    const char *sensitivity;
 };
 
 struct az1uball_data {
     const struct device *dev;
-    struct k_work work;
-    struct k_timer polling_timer;
+    struct k_work_delayable work;
     struct k_mutex data_lock;
     bool sw_pressed;
     bool sw_pressed_prev;
@@ -35,10 +26,4 @@ struct az1uball_data {
     int previous_y;
     int smoothed_x;
     int smoothed_y;
-    enum az1uball_mode current_mode;
-    uint32_t last_activity_time;    // 最後の入力があった時間
-    bool is_low_power_mode;         // 省電力モードフラグ
 };
-
-/* Public API */
-void az1uball_toggle_mode(void);
