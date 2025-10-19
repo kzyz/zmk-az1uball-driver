@@ -8,25 +8,3 @@ properties:
   reg:
     required: true
     description: I2C address of the trackball
-
-  automouse-layer:
-    type: int
-    default: -1
-
-  default-mode:
-    type: string
-    default: "mouse"
-    enum:
-      - "mouse"
-      - "scroll"
-    description: |
-      デフォルトのトラックボールモード
-      - "mouse": 通常のマウスモード
-      - "scroll": スクロールモード
-
-  sensitivity:
-    type: string
-    default: "1x"
-    description: |
-      トラックボールの感度設定（例: "2x", "0.5x"）
-      デフォルトは "1x"
