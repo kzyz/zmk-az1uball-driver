@@ -95,7 +95,7 @@ default y
 &nbsp;  
 ## カスタマイズ
 
-Input Processorを使用してカーソルの移動速度やスクロール用にしたり
+Input Processorを使用してカーソルの移動速度の変更やスクロール用に変更、
 オートマウスレイヤーを使用するなどのカスタマイズできます。  
 Input Processorの詳しい日本語解説はkot149様の記事
 「[ZMK Input Processorチートシート](https://zenn.dev/kot149/articles/zmk-input-processor-cheat-sheet)」
