@@ -23,9 +23,6 @@ volatile float AZ1UBALL_SMOOTHING_FACTOR = 1.3f;
 
 #define POLL_INTERVAL K_MSEC(10)   // 通常時: 10ms (100Hz)
 
-static int previous_x = 0;
-static int previous_y = 0;
-
 static void az1uball_process_movement(struct az1uball_data *data, int delta_x, int delta_y, uint32_t time_between_interrupts, int max_speed, int max_time, float smoothing_factor) {
     float scaling_factor = 1.0f;
     
@@ -42,8 +39,8 @@ static void az1uball_process_movement(struct az1uball_data *data, int delta_x, i
     int scaled_y_movement = (int)(delta_y * scaling_factor);
 
     // Apply smoothing
-    data->smoothed_x = (int)(smoothing_factor * scaled_x_movement + (1.0f - smoothing_factor) * previous_x);
-    data->smoothed_y = (int)(smoothing_factor * scaled_y_movement + (1.0f - smoothing_factor) * previous_y);
+    data->smoothed_x = (int)(smoothing_factor * scaled_x_movement + (1.0f - smoothing_factor) * data->previous_x);
+    data->smoothed_y = (int)(smoothing_factor * scaled_y_movement + (1.0f - smoothing_factor) * data->previous_y);
 
     data->previous_x = data->smoothed_x;
     data->previous_y = data->smoothed_y;
