@@ -30,8 +30,8 @@ static void az1uball_process_movement(struct az1uball_data *data, int delta_x, i
     float scaling_factor = 1.0f;
     
     if (time_between_interrupts < max_time) {
-        float exponent = -3.0f * (float)time_between_interrupts / max_time;
-        scaling_factor *= 1.0f + (max_speed - 1.0f) * expf(exponent);
+        float exponent = -3.0f * (float)time_between_interrupts / max_time; // Adjust -3.0f for desired curve
+        scaling_factor = 1.0f + (max_speed - 1.0f) * expf(exponent); 
     }
 
     /* Accumulate deltas atomically */
