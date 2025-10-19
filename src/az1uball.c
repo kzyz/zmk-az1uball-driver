@@ -71,8 +71,8 @@ static void az1uball_work_handler(struct k_work_delayable *work)
     k_mutex_unlock(&data->data_lock);
 
     /* Calculate deltas */
-    int16_t delta_x = (int16_t)buf[1] - (int16_t)buf[0]; // RIGHT - LEFT
-    int16_t delta_y = (int16_t)buf[3] - (int16_t)buf[2]; // DOWN - UP
+    int16_t delta_x = (int16_t)buf[2] - (int16_t)buf[3]; // RIGHT - LEFT
+    int16_t delta_y = (int16_t)buf[1] - (int16_t)buf[0]; // DOWN - UP
 
     /* Report movement immediately if non-zero */
     if (delta_x != 0 || delta_y != 0) {
