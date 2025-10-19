@@ -10,8 +10,6 @@
 #include <zephyr/input/input.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/kernel.h>
-#include <math.h>
-#include <stdlib.h>
 #include "az1uball.h"
 
 #include <zephyr/logging/log.h>
