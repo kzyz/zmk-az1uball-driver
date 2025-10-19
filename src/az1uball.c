@@ -17,34 +17,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(az1uball, LOG_LEVEL_DBG);
 
-volatile uint8_t AZ1UBALL_MAX_SPEED = 25;
-volatile uint8_t AZ1UBALL_MAX_TIME = 5;
-volatile float AZ1UBALL_SMOOTHING_FACTOR = 1.3f;
-
 #define POLL_INTERVAL K_MSEC(10)   // 通常時: 10ms (100Hz)
-
-static void az1uball_process_movement(struct az1uball_data *data, int delta_x, int delta_y, uint32_t time_between_interrupts, int max_speed, int max_time, float smoothing_factor) {
-    float scaling_factor = 1.0f;
-    
-    if (time_between_interrupts < max_time) {
-        float exponent = -3.0f * (float)time_between_interrupts / max_time; // Adjust -3.0f for desired curve
-        scaling_factor = 1.0f + (max_speed - 1.0f) * expf(exponent); 
-    }
-
-    /* Accumulate deltas atomically */
-    atomic_add(&data->x_buffer, delta_x);
-    atomic_add(&data->y_buffer, delta_y);
-
-    int scaled_x_movement = (int)(delta_x * scaling_factor);
-    int scaled_y_movement = (int)(delta_y * scaling_factor);
-
-    // Apply smoothing
-    data->smoothed_x = (int)(smoothing_factor * scaled_x_movement + (1.0f - smoothing_factor) * data->previous_x);
-    data->smoothed_y = (int)(smoothing_factor * scaled_y_movement + (1.0f - smoothing_factor) * data->previous_y);
-
-    data->previous_x = data->smoothed_x;
-    data->previous_y = data->smoothed_y;
-}
 
 /* Execution functions for asynchronous work */
 static void az1uball_work_handler(struct k_work_delayable *work)
@@ -61,37 +34,29 @@ static void az1uball_work_handler(struct k_work_delayable *work)
         return;
     }
 
-    uint32_t time_between_interrupts;
-
-    k_mutex_lock(&data->data_lock, K_FOREVER);
-    time_between_interrupts = data->last_interrupt_time - data->previous_interrupt_time;
-    k_mutex_unlock(&data->data_lock);
-
     /* Calculate deltas */
     int16_t delta_x = (int16_t)buf[2] - (int16_t)buf[3]; // RIGHT - LEFT
     int16_t delta_y = (int16_t)buf[1] - (int16_t)buf[0]; // DOWN - UP
 
     /* Report movement immediately if non-zero */
     if (delta_x != 0 || delta_y != 0) {
-        az1uball_process_movement(data, delta_x, delta_y, time_between_interrupts, AZ1UBALL_MAX_SPEED, AZ1UBALL_MAX_TIME, AZ1UBALL_SMOOTHING_FACTOR);
-
         /* Report relative X movement */
         if (delta_x != 0) {
-            ret = input_report_rel(data->dev, INPUT_REL_X, data->smoothed_x, true, K_NO_WAIT);
+            ret = input_report_rel(data->dev, INPUT_REL_X, delta_x, true, K_NO_WAIT);
             if (ret < 0) {
                 LOG_ERR("Failed to report delta_x: %d", ret);
             } else {
-                LOG_DBG("Reported delta_x: %d", data->smoothed_x);
+                LOG_DBG("Reported delta_x: %d", delta_x);
             }
         }
 
         /* Report relative Y movement */
         if (delta_y != 0) {
-            ret = input_report_rel(data->dev, INPUT_REL_Y, data->smoothed_y, true, K_NO_WAIT);
+            ret = input_report_rel(data->dev, INPUT_REL_Y, delta_y, true, K_NO_WAIT);
             if (ret < 0) {
                 LOG_ERR("Failed to report delta_y: %d", ret);
             } else {
-                LOG_DBG("Reported delta_y: %d", data->smoothed_y);
+                LOG_DBG("Reported delta_y: %d", delta_y);
             }
         }
     }
@@ -140,7 +105,6 @@ static int az1uball_init(const struct device *dev)
         return ret;
     }
 
-    k_mutex_init(&data->data_lock);
     k_work_init_delayable(&data->work, az1uball_work_handler);
     k_work_schedule(&data->work, POLL_INTERVAL);
 
